@@ -1,11 +1,11 @@
 from pymongo import MongoClient 
 import numpy as np
-import os
 from bson import ObjectId
 from datetime import datetime
 from flask import Flask, jsonify,request
 from bson.json_util import dumps
-#er
+import os
+
 
 app = Flask(__name__)
 
@@ -46,8 +46,8 @@ def naming_test(answer_new):
                     j += 1
             elif value[i] == text[i]:
                 j += 1
-        accuracy3 = j/len(value)
-        return accuracy3
+        score_3 = j
+        return score_3
     except TypeError:
         return 0 
 
@@ -59,20 +59,20 @@ def attention_test(answer_new):
     for i,(val, txt) in enumerate(zip(value, text)):
         if val == txt:
             j += 1
-    accuracy4=j/len(value)
-    return accuracy4
+    score_4=j
+    return score_4
 
 #Language Test(Q5)
 def language_test(answer_new):
     value_answer=answer_new.split(',' ' ')
     value = [word.lower() for word in value_answer]
-    text = ["clock","chair","computer","cap","cat","candy","cotton","cloud","captain","camera","coal","cucumber","cottage","chalk","car","curd","cart","cow","card","colour","cabin","cabinet","cover","cock","cake","cashew","chocolate","comb","candle","crocodile","cross","christmas"]
+    text = ['cab', 'can', 'cub', 'cot', 'cow', 'cry', 'care', 'crow', 'chair', 'charm', 'chore', 'choir', 'chamber', 'charity', 'clove', 'cloud', 'centre', 'convent', 'concern', 'covenant', 'caricature', 'character', 'courage', 'counterpart', 'catch', 'cover', 'clone', 'cut', 'cast', 'crave', 'cite', 'cede', 'climb', 'close', 'chirp', 'colour','come', 'cave', 'cheer', 'count', 'crack', 'certify', 'comfort', 'crumble', 'challenge', 'characterise', 'cute', 'calm', 'clean', 'correct', 'cunning', 'conducive', 'courageous', 'charitable', 'canned', 'careful', 'careless', 'carefree', 'crumbled', 'closed', 'crunchy', 'creepy', 'critical', 'covered', 'colourful', 'concerned', 'chapped', 'clouded', 'cheerful', 'call', 'class', 'clutter', 'chatter', 'classy', 'cone', 'case', 'cupboard', 'conceive', 'cubicle', 'clad', 'clueless', 'cobweb', 'cope', 'cease', 'cleft', 'cracker', 'cough', 'cost', 'chandelier', 'cat', 'camel', 'coupon', 'clear', 'cloudy', 'caring', 'creative', 'clumsy', 'comfortable', 'clock', 'computer', 'cap', 'candy', 'cotton', 'captain', 'camera', 'coal', 'cucumber', 'cottage', 'chalk', 'car', 'curd', 'cart', 'card', 'cabin', 'cabinet', 'cock', 'cake', 'cashew', 'chocolate', 'comb', 'candle', 'crocodile', 'cross', 'christmas', 'cluster', 'cup', 'coin']
     common_words = set(value) & set(text)
     if len(common_words)>=11:
-        accuracy5=1
+        score_5=1
     else:
-        accuracy5=0
-    return accuracy5
+        score_5=0
+    return score_5
 
 #Abstraction Test(Q6)
 def abstraction_test(answer_new):
@@ -88,34 +88,36 @@ def abstraction_test(answer_new):
         j=j
 
     if j==1:
-        accuracy6=1
+        score6=1
     else:
-        accuracy6=0
-    return accuracy6
+        score6=0
+    return score6
 
 #Delayed Recall Test(Q7)
 def delayed_recall_test(answer_new):
-    value=[string.lower() for string in answer_new]
-    list_1=[]
-    list_2=[]
-    list_3=[]
+    value = [string.lower().strip() for string in answer_new]
+    list_1 = []
+    list_2 = []
+    list_3 = []
     j = 0
-    result_dict={}
-    text=["banana", "milk", "deer"]
-    for index,i in enumerate(value):
+    result_dict = {}
+    text = ["banana", "milk", "deer"]
+
+    for index, i in enumerate(value):
         if i in text:
             list_1.append(i)
             list_2.append(index)
         else:
             list_3.append("not in list")
+
     try:
         for i in range(len(list_2)):
             result_dict[list_2[i]] = list_1[i]
         for i in result_dict.keys():
-            if value[i] == text[i] :
+            if value[i] == text[i]:
                 j += 1
-        accuracy7 = j/len(value)
-        return accuracy7
+        score7 = j
+        return score7
     except TypeError:
         return 0
 
@@ -131,7 +133,7 @@ def get_result(useid:str,testid:str):
                 'userId':useid,
                 'testId':testid}
     keys_to_exclude = ['userId', 'user','Result','testId']
-    original_accuracy=0
+    original_score=0
     filtered_values = [value for key, value in info_dict.items() if key not in keys_to_exclude]
     object_id_user=ObjectId(info_dict['userId'])
     object_id=ObjectId(info_dict['testId'])
@@ -139,54 +141,55 @@ def get_result(useid:str,testid:str):
     db = client.get_database(database_name)
     age = db[info_dict['user']].find_one({'_id': object_id_user})['age']
     end_time=db[info_dict['collection_name_7']].find_one({"testId": object_id})['testTime']
-    #accuracy calculation
+    #score calculation
     collection_name = [db[collection] for collection in filtered_values]
     for i in collection_name:
         try:
             result_test =i.find_one({'testId':object_id})['testData']
             try:
-                accu_1=delayed_recall_test(result_test)
+                score_1=delayed_recall_test(result_test)
             except:
-                accu_1=0
+                score_1=0
             try:
-                accu_2=abstraction_test(result_test)
+                score_2=abstraction_test(result_test)
             except:
-                accu_2=0
+                score_2=0
             try:
-                accu_3=language_test(result_test)
+                score_3=language_test(result_test)
             except:
-                accu_3=0
+                score_3=0
             try:
-                accu_4=attention_test(result_test)
+                score_4=attention_test(result_test)
             except:
-                accu_4=0
+                score_4=0
             try:
-                accu_5=naming_test(result_test)
+                score_5=naming_test(result_test)
             except:
-                accu_5=0
-            overall_accuracy=max(accu_1,accu_2,accu_3,accu_4,accu_5)
-            original_accuracy=overall_accuracy+original_accuracy
+                score_5=0
+            overall_score=max(score_1,score_2,score_3,score_4,score_5)
+            original_score=overall_score+original_score
             #test_id =i.find_one({'testId':object_id})['user_id']
             #print(test_id,overall_accuracy,original_accuracy)
         except:
             print("ERROR")
     #speed calculation
-    minutes,seconds,nanoseconds=str(end_time).split('.')
-    minutes, seconds = int(minutes), int(seconds)
+    #minutes,seconds,nanoseconds=str(end_time).split('.')
+    ##minutes, seconds = int(minutes), int(seconds)
 
     #test_id_object=ObjectId(test_id)
-    speed_user = round(min(100, (((minutes * 60) + seconds) / (6 * 60) * 100)),2)
-    overall_accuracy=np.round(original_accuracy*100/5)
-    ICA_index=speed_user*overall_accuracy/100
+    # speed_user = round(min(100, (((minutes * 60) + seconds) / (6 * 60) * 100)),2)
+    # overall_accuracy=np.round(original_accuracy*100/5)
+    # ICA_index=speed_user*overall_accuracy/100
     ##machine_learning
     user_report={ 
     'user_id':ObjectId(useid),
     'test_id':ObjectId(testid),
     'age':age,
-    'overall_accuracy':overall_accuracy,
-    'overall_speed':speed_user,
-    'ICA_index': ICA_index,
-    'timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f %z")
+    'MOCA_Score':original_score,
+    'Accuracy':0,
+    'Speed':0,
+    'ICA_Index':1,
+    'timestamp':datetime.now().strftime("%Y-%m-%d %H")
     }
     
     db[info_dict['Result']].insert_one(user_report)
