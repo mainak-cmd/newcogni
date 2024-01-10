@@ -186,7 +186,7 @@ def get_result(useid:str,testid:str):
     'overall_accuracy':overall_accuracy,
     'overall_speed':speed_user,
     'ICA_index': ICA_index,
-    'timestamp':datetime.now().strftime("%Y-%m-%d %H")
+    'timestamp':datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f %z")
     }
     
     db[info_dict['Result']].insert_one(user_report)
