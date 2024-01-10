@@ -180,8 +180,8 @@ def get_result(useid:str,testid:str):
     ICA_index=speed_user*overall_accuracy/100
     ##machine_learning
     user_report={ 
-    'user_id':useid,
-    'test_id':testid,
+    'user_id':ObjectId(useid),
+    'test_id':ObjectId(testid),
     'age':age,
     'overall_accuracy':overall_accuracy,
     'overall_speed':speed_user,
